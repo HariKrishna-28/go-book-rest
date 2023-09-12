@@ -82,6 +82,23 @@ func checkoutBook(context *gin.Context) {
 	}
 }
 
+func returnBook(context *gin.Context) {
+	bookId := context.Param("id")
+	_, err := getBookByID(bookId)
+
+	if err != nil {
+		context.IndentedJSON(http.StatusNotFound, gin.H{"message": "book not found"})
+		return
+	}
+	for i, b := range books {
+		if b.ID == bookId {
+			books[i].Quantity++
+			context.IndentedJSON(http.StatusOK, gin.H{"message": "book checked out"})
+		}
+	}
+
+}
+
 func main() {
 	router := gin.Default()
 
@@ -89,6 +106,7 @@ func main() {
 	router.POST("/books/new", createBook)
 	router.GET("/books/:id", bookById)
 	router.POST("/books/checkout/:id", checkoutBook)
+	router.POST("/books/return/:id", returnBook)
 	router.Run("localhost:8080")
 
 }
